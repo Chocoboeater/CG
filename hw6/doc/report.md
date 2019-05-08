@@ -251,6 +251,7 @@ FragColor = vec4(result, 1.0);
 
 ##### 完整着色器代码与GUI
 
+顶点着色器
 ```
 #version 330 core
 layout (location = 0) in vec3 aPos;
@@ -271,7 +272,7 @@ void main()
     
 }
 ```
-
+片段着色器
 ```
 #version 330 core
 out vec4 FragColor;
@@ -346,25 +347,62 @@ void main()
 
 #### Gouraud Shading
 
+Gouraud Shading 与 Phong Shading的不同之处在于 Gouraud Shading 三角形的顶点都有各自的法向量，打光时三个顶点有各自的颜色，接着做双线性内插（bilinear interpolation）来求得颜色，使整个三角形有渐层的颜色变化。Phong shading 三角形的顶点都有各自的法向量，先对三角形整个面作法向量的双线性内插，接着打光来求整个三角形的颜色。
 
 
+Phong光照模型在顶点着色器中实现：
+
+```
+# version 330 core
+layout (location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aNormal;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+out vec3 myColor;
+
+uniform vec3 lightPos; 
+uniform vec3 viewPos; 
+uniform vec3 lightColor;
+uniform vec3 objectColor;
+uniform int Shininess;
+uniform float specularStrength;
+uniform float ambientStrength;
+uniform float diffuseStrength;
+
+void main() {
+	gl_Position = projection * view * model * vec4(aPos, 1.0);
+	vec3 FragPos = vec3(model * vec4(aPos, 1.0));
+	vec3 Normal = mat3(transpose(inverse(model))) * aNormal;
+	vec3 ambient = ambientStrength * lightColor;
+    
+	vec3 norm = normalize(Normal);
+	vec3 lightDir = normalize(lightPos - FragPos);
+	float diff = max(dot(norm, lightDir), 0.0);
+	vec3 diffuse = diffuseStrength * diff * lightColor;
+
+	vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), Shininess);
+    vec3 specular = specularStrength * spec * lightColor;  
 
 
+    myColor = (ambient + diffuse + specular) * objectColor;
+}
+```
+片段着色器
 
+```
+#version 330 core
+out vec4 FragColor;
+in vec3 myColor;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void main()
+{
+ 	FragColor = vec4(myColor, 1.0);
+}
+```
 
 
