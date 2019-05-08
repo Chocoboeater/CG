@@ -344,6 +344,7 @@ void main()
 		shader.setVec3("viewPos", camera.getPositon());
 ```
 
+![输入图片说明](https://images.gitee.com/uploads/images/2019/0508/233906_1ad88698_2165057.gif "phong2.gif")
 
 #### Gouraud Shading
 
@@ -404,5 +405,8 @@ void main()
  	FragColor = vec4(myColor, 1.0);
 }
 ```
+![输入图片说明](https://images.gitee.com/uploads/images/2019/0508/233251_3457f08f_2165057.gif "gouraud.gif")
+
+
 
 
