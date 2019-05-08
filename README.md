@@ -1,3 +1,3 @@
 # CG
 
-unfinish
+finish hw6（no bonus）
