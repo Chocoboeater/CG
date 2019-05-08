@@ -34,13 +34,9 @@ float lastY = SCR_HEIGHT / 2.0f;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 bool firstMouse = true;
-
+bool mouse = false;
 bool basic, bonus;
 glm::vec3 lightColor;
-float ambientFactor;
-float diffuseFactor;
-float specularFactor;
-int reflectionPara; 
 glm::vec3 lastViewPoint;
 
 // lighting
@@ -189,8 +185,8 @@ void Glmtest3(GLFWwindow* window) {
 		static float specularStrength = 1.0;
 		static float ambientStrength = 1.0;
 		static float diffuseStrength = 1.0;
-
-
+		static int Shininess = 32;
+		ImGui::Text("Press space to stop using mouse.");
 		ImGui::Checkbox("Rotate Option", &object_rotate);
 		if (object_rotate) {
 			ImGui::SliderFloat("RotateX", &rotaX, -360.0f, 360.0f);
@@ -203,7 +199,7 @@ void Glmtest3(GLFWwindow* window) {
 		ImGui::RadioButton("phong", &light_type, 1);
 		ImGui::RadioButton("gouraud", &light_type, 2);
 
-
+		ImGui::SliderInt("Shininess", &Shininess, 15, 50);
 		ImGui::SliderFloat("specularStrength", &specularStrength, 0.0f, 3.0f);
 		ImGui::SliderFloat("ambientStrength", &ambientStrength, 0.0f, 3.0f);
 		ImGui::SliderFloat("diffuseStrength", &diffuseStrength, 0.0f, 3.0f);
@@ -231,6 +227,9 @@ void Glmtest3(GLFWwindow* window) {
 		if (light_type != 1) {
 			shader = gouraudShader;
 		}
+		else {
+			shader = phongShader;
+		}
 
 
 		// create transformations
@@ -248,6 +247,7 @@ void Glmtest3(GLFWwindow* window) {
 			// view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 		shader.use();
+		shader.setInt("Shininess", Shininess);
 		shader.setFloat("specularStrength", specularStrength);
 		shader.setFloat("ambientStrength", ambientStrength);
 		shader.setFloat("diffuseStrength", diffuseStrength);
@@ -314,6 +314,8 @@ void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		mouse = (mouse == true ? false : true);
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
@@ -342,7 +344,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
+	if (mouse)
+		camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
