@@ -1,3 +1,3 @@
-# CG
+# CG Homework
 
-finish hw6（no bonus）
+finish hw8（bonus）
